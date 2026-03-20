@@ -1,0 +1,13 @@
+description: GNURadio CI TX-RX test
+duration: 120
+
+nodes:
+  nodeX:
+    container:
+      image: sayantanmaity420/gnuradio-ci:1.0
+      command: python3 benchmark_rx.py
+
+  nodeY:
+    container:
+      image: sayantanmaity420/gnuradio-ci:1.0
+      command: python3 benchmark_tx.py
