@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import json
+import random
+import time
+from pathlib import Path
+
+
+PLAN_PATH = Path("/root/iteration_plan.json")
+RESULTS_DIR = Path("/root/results_rx")
+
+
+def run_iteration(iter_cfg: dict, plan: dict) -> None:
+    name = iter_cfg["name"]
+    tone_freq = iter_cfg["tone_freq"]
+    amplitude = iter_cfg["amplitude"]
+    run_seconds = iter_cfg["run_seconds"]
+
+    print(f"[RX] Starting iteration: {name}")
+    time.sleep(run_seconds)
+
+    # Placeholder measurement model
+    measured_peak_freq = tone_freq + random.randint(-40, 40)
+    measured_amplitude = amplitude * random.uniform(0.88, 1.08)
+    measured_snr_db = random.uniform(10.0, 18.0)
+
+    summary = {
+        "iteration": name,
+        "expected": {
+            "tone_freq": tone_freq,
+            "amplitude": amplitude,
+        },
+        "measured": {
+            "peak_freq": measured_peak_freq,
+            "amplitude": measured_amplitude,
+            "snr_db": measured_snr_db,
+        },
+        "thresholds": plan["metrics"],
+    }
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    out_path = RESULTS_DIR / f"{name}_capture_summary.json"
+    out_path.write_text(json.dumps(summary, indent=2), encoding="utf-8")
+
+    print(f"[RX] Wrote summary: {out_path}")
+    print(f"[RX] Completed iteration: {name}")
+
+
+def main() -> None:
+    with open(PLAN_PATH, "r", encoding="utf-8") as f:
+        plan = json.load(f)
+
+    for iteration in plan["iterations"]:
+        run_iteration(iteration, plan)
+
+    print("[RX] All iterations completed.")
+
+
+if __name__ == "__main__":
+    main()
