@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+
+import json
+import time
+from pathlib import Path
+
+
+PLAN_PATH = Path("/root/iteration_plan.json")
+RESULTS_DIR = Path("/root/results_tx")
+
+
+def run_iteration(iter_cfg: dict, sample_rate: int, center_freq: int, waveform: str, tx_gain: int) -> None:
+    name = iter_cfg["name"]
+    tone_freq = iter_cfg["tone_freq"]
+    amplitude = iter_cfg["amplitude"]
+    offset = iter_cfg["offset"]
+    run_seconds = iter_cfg["run_seconds"]
+
+    print(f"[TX] Starting iteration: {name}")
+    print(f"[TX] sample_rate={sample_rate}, center_freq={center_freq}, waveform={waveform}, tx_gain={tx_gain}")
+    print(f"[TX] tone_freq={tone_freq}, amplitude={amplitude}, offset={offset}, run_seconds={run_seconds}")
+
+    # Placeholder for actual GNU Radio / UHD TX flowgraph
+    time.sleep(run_seconds)
+
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    (RESULTS_DIR / f"{name}_tx_status.json").write_text(
+        json.dumps(
+            {
+                "iteration": name,
+                "status": "completed",
+                "tone_freq": tone_freq,
+                "amplitude": amplitude,
+                "offset": offset,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+    print(f"[TX] Completed iteration: {name}")
+
+
+def main() -> None:
+    with open(PLAN_PATH, "r", encoding="utf-8") as f:
+        plan = json.load(f)
+
+    sample_rate = plan["sample_rate"]
+    center_freq = plan["center_freq"]
+    waveform = plan["waveform"]
+    tx_gain = plan["tx_gain"]
+
+    for iteration in plan["iterations"]:
+        run_iteration(iteration, sample_rate, center_freq, waveform, tx_gain)
+
+    print("[TX] All iterations completed.")
+
+
+if __name__ == "__main__":
+    main()
