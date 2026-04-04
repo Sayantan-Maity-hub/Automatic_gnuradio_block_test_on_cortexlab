@@ -1,0 +1,51 @@
+version: 1
+
+blocks:
+  sig_source:
+    module_path:
+      - "gr-analog/lib/sig_source_impl.cc"
+      - "gr-analog/lib/sig_source_impl.h"
+    enabled: true
+    priority: high
+    description: "Basic tone generation block for first iterative HIL prototype"
+
+    tx_template: "hil/templates/tx_sig_source.py.j2"
+    rx_template: "hil/templates/rx_sig_source.py.j2"
+    scenario_template: "hil/templates/scenario_sig_source.yaml.j2"
+    analyzer_script: "hil/scripts/analyze_sig_source.py"
+
+    parameters:
+      sample_rate: 32000
+      center_freq: 915000000
+      waveform: "GR_COS_WAVE"
+      tx_node: "node11"
+      rx_node: "node12"
+      container_image: "ghcr.io/cortexlab/cxlb-gnuradio-3.10:1.5"
+      task_duration_seconds: 180
+      tx_gain: 20
+      rx_gain: 20
+      iterations:
+        - name: "tone_1k_amp_0p3"
+          tone_freq: 1000
+          amplitude: 0.3
+          offset: 0.0
+          run_seconds: 5
+        - name: "tone_4k_amp_0p6"
+          tone_freq: 4000
+          amplitude: 0.6
+          offset: 0.0
+          run_seconds: 5
+        - name: "tone_7k_amp_0p8"
+          tone_freq: 7000
+          amplitude: 0.8
+          offset: 0.0
+          run_seconds: 5
+
+    metrics:
+      peak_frequency_error_hz: 150
+      min_detected_snr_db: 8
+      relative_amplitude_error: 0.25
+
+    expected_behavior:
+      - "Captured signal should contain a dominant tone near configured frequency"
+      - "Measured amplitude should scale consistently with configured amplitude"
