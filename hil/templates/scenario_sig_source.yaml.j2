@@ -1,0 +1,19 @@
+# Auto-generated scenario.yaml for {{ block }}
+
+description: "Registry-driven HIL prototype for {{ block }}"
+duration: {{ config.parameters.task_duration_seconds }}
+
+nodes:
+  {{ config.parameters.tx_node }}:
+    container:
+      - image: {{ config.parameters.container_image }}
+        name: tx-container
+        command: >
+          bash -lc "cd /root && python3 tx.py"
+
+  {{ config.parameters.rx_node }}:
+    container:
+      - image: {{ config.parameters.container_image }}
+        name: rx-container
+        command: >
+          bash -lc "cd /root && python3 rx.py"
