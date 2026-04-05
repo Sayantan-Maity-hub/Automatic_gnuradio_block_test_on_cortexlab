@@ -50,3 +50,49 @@ def main() -> int:
         return 1
     
     results_dir = path(sys.argv[1])
+    if not results_dir.is_dir():
+        print(f"Results dirctory {results_dir} does not exist")
+        return 1
+    result_files = sorted(results_dir.glob("*_capture_summery.json"))
+    if not result_files:
+        print("No result files found in {results_dir}")
+        return 1
+    
+    all_results = []
+    overall_passed = True
+    for file_path in result_files:
+        with open(file_path, "r", encoding ="utf-8") as f:
+            data = json.load(f)
+
+            result = evaluate_iteration_(data)
+            all_results.append(result)
+
+            if not result["passed"]:
+                overall_passed = False
+
+            print(f"[{result['iteraion']}] PASS: {result['passed']}")
+            print(f" freq_error = {result['metrics']['peak_frequency_error_hz']:.2f} Hz")
+            print(f" snr = {result['metrics']['snr_db']:.2f} dB")
+            print(f" amp_error = {result['metrics']['relative_amplitude_error']:.2f}")
+            print()
+
+            summary = {
+                "overall_passed": overall_passed,
+                "total_iterations": len(all_results),
+                "passed_iterations": sum(1 for r in all_results if r["passed"]),
+                "failed_iterations": sum(1 for r in all_results if not r["passed"]),
+                "results": all_results,
+            }
+
+            with open("hil_analysis_results.json", "w", encoding="utf-8") as f:
+                json.dump(summary, f, indent=2)
+
+                print("------------Final Results------------")
+                print(f"Overall PASS: {overall_passed}")
+                print("-------------------------------------") 
+
+                return 0 if overall_passed else 2
+
+            if __name__ == "__main__":
+                sys.exit(main())
+                 
