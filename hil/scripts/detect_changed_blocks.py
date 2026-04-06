@@ -30,4 +30,8 @@ def main() -> int:
         "changed_files": changed_files,
         "detected_blocks": detected_blocks
     }
-    
+    print(json.dumps(result, indent=2))
+    return 0
+
+if __name__ == "__main__":
+    raise SystemExit(main())
