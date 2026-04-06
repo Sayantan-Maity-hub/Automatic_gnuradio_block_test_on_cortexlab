@@ -19,3 +19,15 @@ def get_changed_files(changed_files: list[str]) -> list[str]:
         if block:
             detected.add(block)
     return sorted(detected)
+
+def main() -> int:
+    base_ref = sys.argv[1] if len(sys.argv) > 1 else "main"
+    changed_files = get_changed_files(base_ref)
+    detected_blocks = get_changed_files(changed_files)
+
+    result = {
+        "base_ref": base_ref,
+        "changed_files": changed_files,
+        "detected_blocks": detected_blocks
+    }
+    
