@@ -10,3 +10,12 @@ SUPPORTED_BLOCKS_MAP ={
 def run_cmd(cmd: list[str]) -> str:
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return result.stdout.strip()
+
+def get_changed_files(changed_files: list[str]) -> list[str]:
+    detected = set()
+    for file_path in changed_files:
+        normalized = Path(file_path).as_posix()
+        block = SUPPORTED_BLOCKS_MAP.get(normalized)
+        if block:
+            detected.add(block)
+    return sorted(detected)
